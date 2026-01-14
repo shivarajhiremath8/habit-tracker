@@ -1,5 +1,7 @@
 import { useState } from "react";
 import CalendarGrid from "../components/calendar/CalendarGrid";
+import DayDetail from "../components/calendar/DayDetail";
+import BottomSheet from "../components/ui/BottomSheet";
 
 export default function Home() {
     const [selectedDate, setSelectedDate] = useState(null);
@@ -15,11 +17,12 @@ export default function Home() {
                 onSelect={setSelectedDate}
             />
 
-            {selectedDate && (
-                <p className="text-center mt-4 text-sm text-gray-600">
-                    Selected: {selectedDate}
-                </p>
-            )}
+            <BottomSheet
+                open={Boolean(selectedDate)}
+                onClose={() => setSelectedDate(null)}
+            >
+                <DayDetail date={selectedDate} />
+            </BottomSheet>
         </div>
     );
 }
