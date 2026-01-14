@@ -4,6 +4,7 @@ import { useAuth } from "./hooks/useAuth";
 import AddWorkout from "./pages/AddWorkout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Calendar from "./pages/Calendar";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -21,6 +22,7 @@ export default function App() {
     <div className="pb-16">
       {page === "dashboard" && <Dashboard />}
       {page === "add" && <AddWorkout />}
+      {page === "calendar" && <Calendar />}
 
       <BottomNav current={page} onChange={setPage} />
     </div>
