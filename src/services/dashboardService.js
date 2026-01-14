@@ -1,0 +1,27 @@
+import { supabase } from "../lib/supabase";
+
+/**
+ * Fetch workouts for the last N days
+ */
+export async function getWorkoutsLastNDays(userId, days = 7) {
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - (days - 1));
+
+    const from = startDate.toISOString().split("T")[0];
+    const to = today.toISOString().split("T")[0];
+
+    const { data, error } = await supabase
+        .from("workouts")
+        .select("workout_date")
+        .eq("user_id", userId)
+        .gte("workout_date", from)
+        .lte("workout_date", to);
+
+    if (error) {
+        console.error("Error fetching workouts:", error);
+        throw error;
+    }
+
+    return data;
+}
