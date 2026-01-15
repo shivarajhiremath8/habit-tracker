@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { saveWeeklyWeight, saveWorkout } from "../../services/workoutService";
+import { getLocalDateString } from "../../utils/dateUtils";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
-import SplitSelector from "./SplitSelector";
+import BodyPartSelector from "./BodyPartSelector";
 
 export default function WorkoutForm() {
     const { user } = useAuth();
 
-    const [date, setDate] = useState(
-        new Date().toISOString().split("T")[0]
-    );
-    const [split, setSplit] = useState(null);
+    const [date, setDate] = useState(getLocalDateString());
+    const [bodyParts, setBodyParts] = useState([]);
     const [bodyWeight, setBodyWeight] = useState("");
     const [saving, setSaving] = useState(false);
 
@@ -23,14 +22,14 @@ export default function WorkoutForm() {
         try {
             setSaving(true);
 
-            // 1️⃣ Save workout
+            // 1️⃣ Save workout (UPSERT, multi body parts)
             await saveWorkout({
                 userId: user.id,
                 date,
-                split,
+                bodyParts,
             });
 
-            // 2️⃣ Save weekly weight (only Monday)
+            // 2️⃣ Save weekly weight (Monday only)
             if (isMonday && bodyWeight) {
                 await saveWeeklyWeight({
                     userId: user.id,
@@ -40,9 +39,12 @@ export default function WorkoutForm() {
             }
 
             alert("Workout saved successfully");
-            setSplit(null);
+
+            // Reset form (date stays)
+            setBodyParts([]);
             setBodyWeight("");
         } catch (err) {
+            console.error(err);
             alert("Something went wrong while saving");
         } finally {
             setSaving(false);
@@ -51,6 +53,7 @@ export default function WorkoutForm() {
 
     return (
         <div className="space-y-5">
+            {/* Date */}
             <Input
                 label="Date"
                 type="date"
@@ -58,8 +61,13 @@ export default function WorkoutForm() {
                 onChange={(e) => setDate(e.target.value)}
             />
 
-            <SplitSelector value={split} onChange={setSplit} />
+            {/* Body parts (multi-select) */}
+            <BodyPartSelector
+                value={bodyParts}
+                onChange={setBodyParts}
+            />
 
+            {/* Weekly body weight (Monday only) */}
             {isMonday && (
                 <Input
                     label="Weekly Body Weight (kg)"
@@ -69,9 +77,14 @@ export default function WorkoutForm() {
                 />
             )}
 
+            {/* Save */}
             <Button
                 onClick={handleSave}
-                disabled={!split || saving || (isMonday && !bodyWeight)}
+                disabled={
+                    bodyParts.length === 0 ||
+                    saving ||
+                    (isMonday && !bodyWeight)
+                }
             >
                 {saving ? "Saving..." : "Save Workout"}
             </Button>

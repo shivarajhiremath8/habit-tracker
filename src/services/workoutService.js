@@ -3,14 +3,18 @@ import { supabase } from "../lib/supabase";
 /**
  * Insert or update workout for a day (UPSERT)
  */
-export async function saveWorkout({ userId, date, split }) {
+export async function saveWorkout({
+    userId,
+    date,
+    bodyParts,
+}) {
     const { error } = await supabase
         .from("workouts")
         .upsert(
             {
                 user_id: userId,
                 workout_date: date,
-                split,
+                body_parts: bodyParts,
             },
             {
                 onConflict: "user_id,workout_date",

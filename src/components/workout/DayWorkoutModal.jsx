@@ -3,11 +3,12 @@ import { useAuth } from "../../hooks/useAuth";
 import { getWorkoutByDate } from "../../services/dayWorkoutService";
 import { saveWorkout } from "../../services/workoutService";
 import Button from "../ui/Button";
-import SplitSelector from "./SplitSelector";
+import BodyPartSelector from "./BodyPartSelector";
 
 export default function DayWorkoutModal({ date, onClose }) {
     const { user } = useAuth();
-    const [split, setSplit] = useState(null);
+
+    const [bodyParts, setBodyParts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -17,9 +18,9 @@ export default function DayWorkoutModal({ date, onClose }) {
         async function load() {
             try {
                 const workout = await getWorkoutByDate(user.id, date);
-                setSplit(workout?.split ?? null);
+                setBodyParts(workout?.body_parts ?? []);
             } catch (e) {
-                console.error(e);
+                console.error("Failed to load workout", e);
             } finally {
                 setLoading(false);
             }
@@ -29,15 +30,20 @@ export default function DayWorkoutModal({ date, onClose }) {
     }, [user, date]);
 
     const handleSave = async () => {
+        if (bodyParts.length === 0) return;
+
         try {
             setSaving(true);
+
             await saveWorkout({
                 userId: user.id,
                 date,
-                split,
+                bodyParts,
             });
+
             onClose();
-        } catch {
+        } catch (e) {
+            console.error(e);
             alert("Failed to save workout");
         } finally {
             setSaving(false);
@@ -46,11 +52,13 @@ export default function DayWorkoutModal({ date, onClose }) {
 
     return (
         <div className="fixed inset-0 z-50">
+            {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/40"
                 onClick={onClose}
             />
 
+            {/* Bottom Sheet */}
             <div className="absolute bottom-0 w-full bg-white rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto">
                 <p className="text-sm text-gray-500 mb-1">
                     Workout for
@@ -60,15 +68,22 @@ export default function DayWorkoutModal({ date, onClose }) {
                 </h2>
 
                 {loading ? (
-                    <p className="text-sm text-gray-500">Loading...</p>
+                    <p className="text-sm text-gray-500">
+                        Loading workout...
+                    </p>
                 ) : (
                     <>
-                        <SplitSelector value={split} onChange={setSplit} />
+                        {/* Body Part Multi-Select */}
+                        <BodyPartSelector
+                            value={bodyParts}
+                            onChange={setBodyParts}
+                        />
 
+                        {/* Actions */}
                         <div className="mt-6 space-y-3">
                             <Button
                                 onClick={handleSave}
-                                disabled={!split || saving}
+                                disabled={bodyParts.length === 0 || saving}
                             >
                                 {saving ? "Saving..." : "Save Changes"}
                             </Button>
