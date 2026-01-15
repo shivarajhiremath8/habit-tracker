@@ -4,8 +4,9 @@ import { supabase } from "../../lib/supabase";
 import { getLocalDateString } from "../../utils/dateUtils";
 import DayWorkoutModal from "../workout/DayWorkoutModal";
 
-export default function MonthCalendar() {
+export default function MonthCalendar({ readOnly = false, userId: sharedUserId = null }) {
     const { user } = useAuth();
+    const activeUserId = readOnly ? sharedUserId : user?.id;
 
     const today = new Date();
     const todayStr = getLocalDateString(today);
@@ -15,31 +16,22 @@ export default function MonthCalendar() {
     const [workoutDates, setWorkoutDates] = useState([]);
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Animation state
-    const [slideDir, setSlideDir] = useState(null); // "left" | "right"
-
-    // Swipe refs
     const touchStartX = useRef(0);
-    const touchEndX = useRef(0);
     const SWIPE_THRESHOLD = 50;
 
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
     const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
 
-    // Fetch workouts
     useEffect(() => {
-        if (!user) return;
+        if (!activeUserId) return;
 
         async function load() {
-            const from = getLocalDateString(firstDayOfMonth);
-            const to = getLocalDateString(lastDayOfMonth);
-
             const { data } = await supabase
                 .from("workouts")
                 .select("workout_date")
-                .eq("user_id", user.id)
-                .gte("workout_date", from)
-                .lte("workout_date", to);
+                .eq("user_id", activeUserId)
+                .gte("workout_date", getLocalDateString(firstDayOfMonth))
+                .lte("workout_date", getLocalDateString(lastDayOfMonth));
 
             if (data) {
                 setWorkoutDates(data.map((d) => d.workout_date));
@@ -47,146 +39,83 @@ export default function MonthCalendar() {
         }
 
         load();
-    }, [user, currentMonth, currentYear]);
+    }, [activeUserId, currentMonth, currentYear]);
 
-    // Month navigation
     const goPrevMonth = () => {
-        setSlideDir("right");
-        setTimeout(() => {
-            setSlideDir(null);
-            if (currentMonth === 0) {
-                setCurrentMonth(11);
-                setCurrentYear((y) => y - 1);
-            } else {
-                setCurrentMonth((m) => m - 1);
-            }
-        }, 150);
+        if (currentMonth === 0) {
+            setCurrentMonth(11);
+            setCurrentYear((y) => y - 1);
+        } else {
+            setCurrentMonth((m) => m - 1);
+        }
     };
 
     const goNextMonth = () => {
-        setSlideDir("left");
-        setTimeout(() => {
-            setSlideDir(null);
-            if (currentMonth === 11) {
-                setCurrentMonth(0);
-                setCurrentYear((y) => y + 1);
-            } else {
-                setCurrentMonth((m) => m + 1);
-            }
-        }, 150);
+        if (currentMonth === 11) {
+            setCurrentMonth(0);
+            setCurrentYear((y) => y + 1);
+        } else {
+            setCurrentMonth((m) => m + 1);
+        }
     };
 
-    // Swipe handlers
     const onTouchStart = (e) => {
         touchStartX.current = e.touches[0].clientX;
     };
 
     const onTouchEnd = (e) => {
-        touchEndX.current = e.changedTouches[0].clientX;
-        const delta = touchStartX.current - touchEndX.current;
-
+        const delta = touchStartX.current - e.changedTouches[0].clientX;
         if (Math.abs(delta) < SWIPE_THRESHOLD) return;
-
         delta > 0 ? goNextMonth() : goPrevMonth();
     };
 
-    // Build calendar grid
     const days = [];
     const offset = firstDayOfMonth.getDay();
-
     for (let i = 0; i < offset; i++) days.push(null);
 
     for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
-        days.push(
-            getLocalDateString(new Date(currentYear, currentMonth, d))
-        );
+        days.push(getLocalDateString(new Date(currentYear, currentMonth, d)));
     }
-
-    const monthLabel = firstDayOfMonth.toLocaleString("default", {
-        month: "long",
-        year: "numeric",
-    });
-
-    // Animation classes
-    const slideClass =
-        slideDir === "left"
-            ? "-translate-x-6 opacity-0"
-            : slideDir === "right"
-                ? "translate-x-6 opacity-0"
-                : "translate-x-0 opacity-100";
 
     return (
         <>
-            {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <button
-                    onClick={goPrevMonth}
-                    className="px-3 py-1 rounded-lg bg-gray-100 text-sm"
-                >
-                    ←
-                </button>
-
-                <h2 className="text-sm font-semibold">
-                    {monthLabel}
-                </h2>
-
-                <button
-                    onClick={goNextMonth}
-                    className="px-3 py-1 rounded-lg bg-gray-100 text-sm"
-                >
-                    →
-                </button>
+                <button onClick={goPrevMonth}>←</button>
+                <span className="font-semibold">
+                    {firstDayOfMonth.toLocaleString("default", { month: "long", year: "numeric" })}
+                </span>
+                <button onClick={goNextMonth}>→</button>
             </div>
 
-            {/* Swipe + animation container */}
-            <div
-                onTouchStart={onTouchStart}
-                onTouchEnd={onTouchEnd}
-                className={`transition-all duration-200 ${slideClass}`}
-            >
-                {/* Weekdays */}
-                <div className="grid grid-cols-7 text-center text-xs text-gray-500 mb-2">
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                        <div key={d}>{d}</div>
-                    ))}
-                </div>
-
-                {/* Calendar Grid */}
+            <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                 <div className="grid grid-cols-7 gap-2">
                     {days.map((date, i) => {
                         if (!date) return <div key={i} />;
 
                         const isFuture = date > todayStr;
                         const didGym = workoutDates.includes(date);
-                        const isToday = date === todayStr;
 
                         return (
                             <button
                                 key={date}
-                                disabled={isFuture}
-                                onClick={() => !isFuture && setSelectedDate(date)}
-                                className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm
-                  ${isFuture
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        : didGym
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-gray-100 text-gray-700"
+                                disabled={isFuture || readOnly}
+                                onClick={() => !readOnly && setSelectedDate(date)}
+                                className={`aspect-square rounded-lg text-sm
+                  ${didGym
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-gray-100 text-gray-700"
                                     }
-                  ${isToday ? "ring-2 ring-green-500" : ""}
+                  ${readOnly ? "opacity-70" : ""}
                 `}
                             >
-                                <span>{new Date(date).getDate()}</span>
-                                {didGym && !isFuture && (
-                                    <span className="w-1.5 h-1.5 bg-green-600 rounded-full mt-1" />
-                                )}
+                                {new Date(date).getDate()}
                             </button>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Day modal */}
-            {selectedDate && (
+            {!readOnly && selectedDate && (
                 <DayWorkoutModal
                     date={selectedDate}
                     onClose={() => setSelectedDate(null)}

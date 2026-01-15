@@ -5,7 +5,7 @@ import { saveWorkout } from "../../services/workoutService";
 import Button from "../ui/Button";
 import BodyPartSelector from "./BodyPartSelector";
 
-export default function DayWorkoutModal({ date, onClose }) {
+export default function DayWorkoutModal({ date, onClose, readOnly = false }) {
     const { user } = useAuth();
 
     const [bodyParts, setBodyParts] = useState([]);
@@ -81,18 +81,20 @@ export default function DayWorkoutModal({ date, onClose }) {
 
                         {/* Actions */}
                         <div className="mt-6 space-y-3">
-                            <Button
-                                onClick={handleSave}
-                                disabled={bodyParts.length === 0 || saving}
-                            >
-                                {saving ? "Saving..." : "Save Changes"}
-                            </Button>
+                            {!readOnly && (
+                                <Button
+                                    onClick={handleSave}
+                                    disabled={bodyParts.length === 0 || saving}
+                                >
+                                    {saving ? "Saving..." : "Save Changes"}
+                                </Button>
+                            )}
 
                             <Button
                                 variant="secondary"
                                 onClick={onClose}
                             >
-                                Cancel
+                                {readOnly ? "Close" : "Cancel"}
                             </Button>
                         </div>
                     </>
