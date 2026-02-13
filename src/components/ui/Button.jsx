@@ -11,10 +11,10 @@ export default function Button({
         "w-full py-3 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
 
     const variants = {
-        primary: "bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow-md",
-        secondary: "bg-white text-green-700 border border-green-200 hover:bg-green-50 hover:text-green-900 shadow-sm",
-        outline: "border border-green-300 text-green-700 hover:bg-green-50",
-        ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+        primary: "bg-primary text-primary-content hover:bg-primary-hover shadow-sm hover:shadow-md",
+        secondary: "bg-surface text-primary border border-border hover:bg-primary-light hover:text-primary-hover shadow-sm",
+        outline: "border border-border text-primary hover:bg-primary-light",
+        ghost: "text-text-muted hover:bg-background hover:text-text-main",
         danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
     };
 

@@ -107,7 +107,6 @@ export default function WorkoutForm() {
             <Button
                 onClick={handleSave}
                 disabled={saving || (split.length === 0 && (!isMonday || !bodyWeight))}
-                className="bg-green-600 hover:bg-green-700 text-white"
             >
                 {saving ? "Saving..." : "Save Log"}
             </Button>

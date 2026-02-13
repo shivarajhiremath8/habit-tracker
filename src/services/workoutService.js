@@ -24,6 +24,22 @@ export async function saveWorkout({ userId, date, split }) {
 }
 
 /**
+ * Delete workout for a day (removes green dot)
+ */
+export async function deleteWorkout(userId, date) {
+    const { error } = await supabase
+        .from("workouts")
+        .delete()
+        .eq("user_id", userId)
+        .eq("workout_date", date);
+
+    if (error) {
+        console.error("Error deleting workout:", JSON.stringify(error, null, 2));
+        throw error;
+    }
+}
+
+/**
  * Insert weekly body weight (Monday only)
  */
 export async function saveWeeklyWeight({

@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-light: var(--primary-light);
+    --color-primary-content: var(--primary-content);
+
+    --color-background: var(--background);
+    --color-surface: var(--surface);
+    --color-text-main: var(--text-main);
+    --color-text-muted: var(--text-muted);
+    --color-border: var(--border);
+}
+
+:root {
+    /* Green Theme (Default) */
+    --primary: #16a34a;
+    /* green-600 */
+    --primary-hover: #15803d;
+    /* green-700 */
+    --primary-light: #f0fdf4;
+    /* green-50 */
+    --primary-content: #ffffff;
+    /* white */
+
+    --background: #f9fafb;
+    /* gray-50 */
+    --surface: #ffffff;
+    /* white */
+    --text-main: #111827;
+    /* gray-900 */
+    --text-muted: #6b7280;
+    /* gray-500 */
+    --border: #e5e7eb;
+    /* gray-200 */
+}
+
+@layer base {
+    body {
+        @apply bg-background text-text-main transition-colors duration-200;
+    }
+}
+
+/* Dark Mode Overrides */
+.dark {
+    --primary: #22c55e;
+    /* green-500 */
+    --primary-hover: #16a34a;
+    /* green-600 */
+    --primary-light: rgba(34, 197, 94, 0.15);
+    /* green-500 with opacity */
+    --primary-content: #ffffff;
+
+    --background: #111827;
+    /* gray-900 - Lighter than black */
+    --surface: #1f2937;
+    /* gray-800 - Lighter surface */
+    --text-main: #f3f4f6;
+    /* gray-100 */
+    --text-muted: #9ca3af;
+    /* gray-400 */
+    --border: #374151;
+    /* gray-700 */
+}

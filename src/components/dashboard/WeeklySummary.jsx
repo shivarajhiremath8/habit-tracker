@@ -9,6 +9,7 @@ export default function WeeklySummary() {
 
     const [workoutDates, setWorkoutDates] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshKey, setRefreshKey] = useState(0);
     const [selectedDate, setSelectedDate] = useState(null);
 
     useEffect(() => {
@@ -17,7 +18,11 @@ export default function WeeklySummary() {
         async function loadWeeklyData() {
             try {
                 const data = await getWorkoutsLastNDays(user.id, 7);
-                setWorkoutDates(data.map((d) => d.workout_date));
+                // Filter out entries where split is null, empty string, or just whitespace
+                const validDates = data
+                    .filter(d => d.split && d.split.trim() !== "")
+                    .map(d => d.workout_date);
+                setWorkoutDates(validDates);
             } catch (err) {
                 console.error("Failed to load weekly workouts", err);
             } finally {
@@ -26,11 +31,11 @@ export default function WeeklySummary() {
         }
 
         loadWeeklyData();
-    }, [user]);
+    }, [user, refreshKey]);
 
     if (loading) {
         return (
-            <div className="bg-white rounded-xl p-4 text-sm text-gray-500">
+            <div className="bg-white dark:bg-white/[0.04] rounded-2xl p-4 text-sm text-gray-400">
                 Loading weekly summary...
             </div>
         );
@@ -48,44 +53,58 @@ export default function WeeklySummary() {
 
     return (
         <>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div className="
+                rounded-2xl p-5
+                bg-white shadow-sm border border-gray-100
+                dark:bg-white/[0.04] dark:backdrop-blur-xl dark:border-white/[0.08] dark:shadow-none
+            ">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-bold text-black dark:text-gray-100">
                         Weekly Check-ins
                     </h3>
-                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                        {gymDays} / 7 Days
+                    <span className="
+                        text-[11px] font-semibold px-2.5 py-1 rounded-full
+                        bg-emerald-50 text-emerald-600
+                        dark:bg-emerald-500/10 dark:text-emerald-400
+                    ">
+                        {gymDays} / 7
                     </span>
                 </div>
 
                 {/* Day indicators */}
-                <div className="flex justify-between items-center bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                    {last7Days.map((date, index) => {
+                <div className="
+                    flex justify-between items-center p-3 rounded-xl
+                    bg-gray-50/80 border border-gray-100/50
+                    dark:bg-white/[0.03] dark:border-white/[0.05]
+                ">
+                    {last7Days.map((date) => {
                         const didGym = workoutDates.includes(date);
-                        const dayLabel = new Date(date).toLocaleDateString('en-US', { weekday: 'narrow' }); // M, T, W etc.
+                        const dayLabel = new Date(date).toLocaleDateString('en-US', { weekday: 'narrow' });
+                        const isToday = date === getLocalDateString(new Date());
 
                         return (
                             <div key={date} className="flex flex-col items-center gap-1.5">
-                                <span className="text-[10px] text-gray-400 font-medium">{dayLabel}</span>
+                                <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {dayLabel}
+                                </span>
                                 <button
                                     onClick={() => setSelectedDate(date)}
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200
+                                    className={`
+                                        w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium
+                                        transition-all duration-200
                                         ${didGym
-                                            ? "bg-green-600 text-white shadow-md shadow-green-200 hover:bg-green-700 scale-105"
-                                            : "bg-white border border-gray-200 text-gray-400 hover:border-gray-300 hover:bg-gray-50"
+                                            ? `bg-gradient-to-br from-emerald-500 to-green-500 text-white shadow-md shadow-emerald-500/25 dark:shadow-emerald-500/10`
+                                            : `text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/[0.06]`
                                         }
+                                        ${isToday && !didGym ? "ring-1.5 ring-emerald-400 dark:ring-emerald-500" : ""}
                                     `}
                                 >
-                                    {didGym ? "✓" : ""}
-                                    {/* Or keep date number? User specifically wanted "clean". Checkmark is cleaner for "done", date number might be useful though. 
-                                       Original had date number. Let's stick to valid content. 
-                                       Actually, let's put the DATE inside if not done, and CHECK if done? Or just date.
-                                    */}
-                                    {!didGym && new Date(date).getDate()}
-                                    {didGym && (
+                                    {didGym ? (
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                            <polyline points="20 6 9 17 4 12" />
                                         </svg>
+                                    ) : (
+                                        <span>{new Date(date).getDate()}</span>
                                     )}
                                 </button>
                             </div>
@@ -98,7 +117,10 @@ export default function WeeklySummary() {
             {selectedDate && (
                 <DayWorkoutModal
                     date={selectedDate}
-                    onClose={() => setSelectedDate(null)}
+                    onClose={() => {
+                        setSelectedDate(null);
+                        setRefreshKey(k => k + 1);
+                    }}
                 />
             )}
         </>

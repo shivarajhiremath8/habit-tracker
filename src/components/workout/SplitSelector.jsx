@@ -23,7 +23,7 @@ export default function SplitSelector({ value, onChange }) {
 
     return (
         <div>
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-text-muted mb-2">
                 Workout Split (Select multiple)
             </p>
 
@@ -37,8 +37,8 @@ export default function SplitSelector({ value, onChange }) {
                             onClick={() => togglePart(part)}
                             className={`p-3 rounded-xl border text-sm font-medium transition-all duration-200
                 ${isSelected
-                                    ? "border-green-600 bg-green-50 text-green-700 shadow-sm ring-1 ring-green-600"
-                                    : "border-gray-200 text-gray-700 hover:border-green-300 hover:bg-gray-50"
+                                    ? "border-primary bg-primary-light text-primary shadow-sm ring-1 ring-primary"
+                                    : "border-border text-text-main hover:border-primary-light hover:bg-background"
                                 }
               `}
                         >

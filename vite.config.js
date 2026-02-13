@@ -4,6 +4,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
-    react(), tailwindcss(),
-  ],
+    react(), tailwindcss(),],
+  server: {
+    // This allows the tunnel URL to access your local server
+    allowedHosts: true,
+  }
 });

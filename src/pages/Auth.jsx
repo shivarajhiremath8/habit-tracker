@@ -20,8 +20,8 @@ export default function Auth() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50">
-            <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
+            <div className="w-full max-w-sm bg-surface p-8 rounded-2xl shadow-sm border border-border">
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
                         Habit Tracker
