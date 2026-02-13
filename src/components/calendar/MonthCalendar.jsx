@@ -155,7 +155,6 @@ export default function MonthCalendar() {
                 <div className="grid grid-cols-7 gap-2">
                     {days.map((date, i) => {
                         if (!date) return <div key={i} />;
-
                         const isFuture = date > todayStr;
                         const didGym = workoutDates.includes(date);
                         const isToday = date === todayStr;
@@ -165,15 +164,15 @@ export default function MonthCalendar() {
                                 key={date}
                                 disabled={isFuture}
                                 onClick={() => !isFuture && setSelectedDate(date)}
-                                className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm
-                  ${isFuture
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm transition-all duration-200
+                                  ${isFuture
+                                        ? "bg-gray-50 text-gray-300 cursor-not-allowed"
                                         : didGym
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-gray-100 text-gray-700"
+                                            ? "bg-green-50 text-green-700 font-bold border border-green-100 hover:bg-green-100"
+                                            : "bg-white border border-gray-100 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
                                     }
-                  ${isToday ? "ring-2 ring-green-500" : ""}
-                `}
+                                  ${isToday ? "ring-2 ring-green-600 ring-offset-2" : ""}
+                                `}
                             >
                                 <span>{new Date(date).getDate()}</span>
                                 {didGym && !isFuture && (

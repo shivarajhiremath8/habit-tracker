@@ -18,7 +18,7 @@ export async function saveWorkout({ userId, date, split }) {
         );
 
     if (error) {
-        console.error("Error saving workout:", error);
+        console.error("Error saving workout:", JSON.stringify(error, null, 2));
         throw error;
     }
 }
@@ -45,7 +45,7 @@ export async function saveWeeklyWeight({
         );
 
     if (error) {
-        console.error("Error saving weekly weight:", error);
+        console.error("Error saving weekly weight:", JSON.stringify(error, null, 2));
         throw error;
     }
 }

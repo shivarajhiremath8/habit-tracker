@@ -1,61 +1,38 @@
-import addIcon from "../../assets/add.svg";
-import calendarIcon from "../../assets/calendar.svg";
-import homeIcon from "../../assets/home.svg";
+import { Calendar, Home, PlusCircle } from "lucide-react";
 
 export default function BottomNav({ current, onChange }) {
+    const navItems = [
+        { id: "calendar", label: "History", icon: Calendar },
+        { id: "dashboard", label: "Dashboard", icon: Home },
+        { id: "add", label: "Add Checkpoint", icon: PlusCircle },
+    ];
+
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50">
-            <div className="max-w-md mx-auto flex justify-around py-2">
-                {/* Dashboard */}
-                <button
-                    onClick={() => onChange("dashboard")}
-                    className={`flex flex-col items-center text-xs font-medium
-            ${current === "dashboard" ? "text-green-600" : "text-gray-500"}
-          `}
-                >
-                    <img
-                        src={homeIcon}
-                        alt="Dashboard"
-                        className={`w-6 h-6 mb-1
-              ${current === "dashboard" ? "opacity-100" : "opacity-60"}
-            `}
-                    />
-                    Dashboard
-                </button>
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe">
+            <div className="max-w-md mx-auto flex justify-around items-center h-16">
+                {navItems.map((item) => {
+                    const isActive = current === item.id;
+                    const Icon = item.icon;
 
-                {/* Calendar */}
-                <button
-                    onClick={() => onChange("calendar")}
-                    className={`flex flex-col items-center text-xs font-medium
-            ${current === "calendar" ? "text-green-600" : "text-gray-500"}
-          `}
-                >
-                    <img
-                        src={calendarIcon}
-                        alt="Calendar"
-                        className={`w-6 h-6 mb-1
-              ${current === "calendar" ? "opacity-100" : "opacity-60"}
-            `}
-                    />
-                    Calendar
-                </button>
-
-                {/* Add Workout */}
-                <button
-                    onClick={() => onChange("add")}
-                    className={`flex flex-col items-center text-xs font-medium
-            ${current === "add" ? "text-green-600" : "text-gray-500"}
-          `}
-                >
-                    <img
-                        src={addIcon}
-                        alt="Add Workout"
-                        className={`w-6 h-6 mb-1
-              ${current === "add" ? "opacity-100" : "opacity-60"}
-            `}
-                    />
-                    Add
-                </button>
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => onChange(item.id)}
+                            className={`flex flex-col items-center justify-center w-full h-full space-y-1
+                                ${isActive ? "text-green-600" : "text-gray-400 hover:text-gray-600"}
+                                transition-colors duration-200`}
+                        >
+                            <Icon
+                                size={24}
+                                strokeWidth={isActive ? 2.5 : 2}
+                                className="transition-transform duration-200 active:scale-95"
+                            />
+                            <span className="text-[10px] font-medium tracking-wide">
+                                {item.label}
+                            </span>
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );

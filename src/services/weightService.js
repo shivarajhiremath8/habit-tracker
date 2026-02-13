@@ -17,3 +17,21 @@ export async function getWeeklyWeights(userId) {
 
     return data;
 }
+
+/**
+ * Fetch weight for a specific week start date
+ */
+export async function getWeightForWeek(userId, date) {
+    const { data, error } = await supabase
+        .from("weekly_weights")
+        .select("body_weight")
+        .eq("user_id", userId)
+        .eq("week_start", date)
+        .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "Row not found" - ignore it
+        console.error("Error fetching weight for week:", error);
+    }
+
+    return data;
+}

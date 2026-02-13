@@ -47,23 +47,39 @@ export default function WeightChart() {
     }
 
     return (
-        <div className="bg-white rounded-xl p-4">
-            <p className="text-sm text-gray-500 mb-2">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">
                 Weekly Body Weight
-            </p>
+            </h3>
 
-            <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="h-48 w-full" style={{ minHeight: 192 }}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <LineChart data={data}>
-                        <XAxis dataKey="week" />
-                        <YAxis domain={["dataMin - 1", "dataMax + 1"]} />
-                        <Tooltip />
+                        <XAxis
+                            dataKey="week"
+                            tick={{ fontSize: 10, fill: '#9ca3af' }}
+                            tickLine={false}
+                            axisLine={false}
+                            dy={10}
+                        />
+                        <YAxis
+                            domain={["dataMin - 1", "dataMax + 1"]}
+                            tick={{ fontSize: 10, fill: '#9ca3af' }}
+                            tickLine={false}
+                            axisLine={false}
+                            dx={-10}
+                        />
+                        <Tooltip
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            itemStyle={{ fontSize: '12px', fontWeight: 600, color: '#16a34a' }}
+                        />
                         <Line
                             type="monotone"
                             dataKey="weight"
                             stroke="#16a34a"
-                            strokeWidth={2}
-                            dot={{ r: 4 }}
+                            strokeWidth={3}
+                            dot={{ r: 4, fill: '#16a34a', strokeWidth: 2, stroke: '#fff' }}
+                            activeDot={{ r: 6, fill: '#16a34a' }}
                         />
                     </LineChart>
                 </ResponsiveContainer>
